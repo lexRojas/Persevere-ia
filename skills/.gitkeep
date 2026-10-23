@@ -1,0 +1,12 @@
+# Carpeta de skills del agente
+
+Esta carpeta está reservada para guardar las **skills** (capacidades, conocimientos especializados o instrucciones de dominio) que el agente necesite para trabajar en el proyecto Persevere.
+
+Cada skill puede ser un archivo `.md` con instrucciones específicas, por ejemplo:
+- `skill-nextjs-app-router.md`
+- `skill-prisma-modeling.md`
+- `skill-tailwind-ui.md`
+- `skill-auth-nextauth.md`
+- `skill-ia-resumenes.md`
+
+El agente debe leer las skills relevantes antes de abordar una funcionalidad nueva.
