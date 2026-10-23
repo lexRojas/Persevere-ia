@@ -50,6 +50,17 @@ Este archivo es el diario de bordo del proyecto. Aquí se registran el estado ac
 - Seguridad: Solo la primera cuenta docente puede registrarse públicamente. Las cuentas docentes adicionales requerirán administración.
 - Resultado: Registro funcional y acceso automático posterior mediante NextAuth.
 
+## [2026-10-23] Actualización de seguridad de Next.js
+- Contexto: Next.js 14.2.14 reportaba vulnerabilidades conocidas.
+- Decisión: Mantener compatibilidad con React 18 y actualizar dentro de la rama 14.
+- Resultado: `next` y `eslint-config-next` actualizados a 14.2.35; TypeScript, Prisma y build de producción validados correctamente.
+
+## [2026-10-23] Migración a Next.js 16 y React 19
+- Contexto: Vercel recomendó migrar a Next.js 16 antes del despliegue.
+- Decisión: Actualizar Next.js 16.4.3, React 19.3.1, NextAuth 4.24.15, Recharts 3.10.1, Lucide React 1.61.0 y ESLint 9.39.5.
+- Cambios: `middleware.ts` migrado a `proxy.ts`; `next lint` reemplazado por ESLint CLI con Flat Config; navegación interna adaptada a `useRouter`.
+- Resultado: lint sin advertencias, TypeScript válido, Prisma válido, build con Turbopack exitoso y prueba de `/registro` con HTTP 200. El servidor de prueba quedó detenido.
+
 ---
 
 ## Próximos pasos (inmediatos)

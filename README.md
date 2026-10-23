@@ -4,7 +4,7 @@ Plataforma de seguimiento del aprendizaje musical, bitácora docente y gamificac
 
 ## Stack
 
-- **Framework:** Next.js 14 (App Router) + TypeScript
+- **Framework:** Next.js 16 (App Router) + TypeScript
 - **Estilos:** Tailwind CSS
 - **ORM / Base de datos:** Prisma + MySQL
 - **Autenticación:** NextAuth.js / Auth.js

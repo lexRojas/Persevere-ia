@@ -22,7 +22,7 @@ Si un requerimiento no está en el SDD o está marcado como "propuesto/opcional/
 
 | Capa | Tecnología | Reglas |
 |------|-----------|--------|
-| Framework | Next.js 14+ (App Router) | Usar Server Components por defecto; Client Components solo cuando sea necesario (`'use client'`). |
+| Framework | Next.js 16 (App Router) | Usar Server Components por defecto; Client Components solo cuando sea necesario (`'use client'`). Consultar primero las reglas versionadas indicadas en `AGENTS.md`. |
 | Lenguaje | TypeScript (estricto) | No usar `any`. Tipos en `src/types/`. Interfaces exportadas con PascalCase. |
 | Estilos | Tailwind CSS | Clases utilitarias; diseño mobile-first; componentes en `src/components/`. |
 | UI base | shadcn/ui sobre Radix UI | Componentes accesibles; no reinventar controles comunes (botón, input, diálogo, etc.). |
@@ -92,7 +92,7 @@ prisma/
 ## 5. Seguridad y privacidad (obligatorio)
 
 - Nunca expongas datos de un estudiante a otro rol sin filtro por `userId` / `studentId`.
-- Las rutas del docente requieren rol `TEACHER` o `ADMIN`; verifica en middleware y en cada route handler.
+- Las rutas del docente requieren rol `TEACHER` o `ADMIN`; verifica en `proxy.ts` y en cada route handler.
 - Las grabaciones y resultados de IA son borradores hasta que la docente los apruebe.
 - No almacenes binarios de audio/video en la base de datos.
 - Usa HTTPS y cookies seguras para sesiones.

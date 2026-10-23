@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 export default function RegistroPage() {
+  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -45,11 +47,12 @@ export default function RegistroPage() {
       })
 
       if (loginResult?.error) {
-        window.location.href = '/login'
+        router.replace('/login')
         return
       }
 
-      window.location.href = '/'
+      router.replace('/')
+      router.refresh()
     } catch {
       setError('No se pudo conectar con el servidor. Inténtalo nuevamente.')
     } finally {
