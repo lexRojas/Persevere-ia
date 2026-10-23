@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@12.4.2",
   "engines": {
-    "node": ">=20.9.0"
+    "node": "20.x"
   },
   "description": "Plataforma de seguimiento del aprendizaje musical, bitácora docente y gamificación del progreso (violín).",
   "scripts": {

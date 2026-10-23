@@ -61,6 +61,10 @@ Este archivo es el diario de bordo del proyecto. Aquí se registran el estado ac
 - Cambios: `middleware.ts` migrado a `proxy.ts`; `next lint` reemplazado por ESLint CLI con Flat Config; navegación interna adaptada a `useRouter`.
 - Resultado: lint sin advertencias, TypeScript válido, Prisma válido, build con Turbopack exitoso y prueba de `/registro` con HTTP 200. El servidor de prueba quedó detenido.
 
+## [2026-10-23] Runtime de producción fijado
+- Contexto: Vercel advirtió que el rango abierto `>=20.9.0` podía saltar automáticamente a una nueva versión mayor de Node.js.
+- Decisión: Fijar el runtime en `20.x`, que cumple el mínimo de Next.js 16 y recibe parches de Node.js 20 sin cambiar de versión mayor.
+
 ---
 
 ## Próximos pasos (inmediatos)
