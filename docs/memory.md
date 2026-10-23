@@ -63,7 +63,7 @@ Este archivo es el diario de bordo del proyecto. Aquí se registran el estado ac
 
 ## [2026-10-23] Runtime de producción fijado
 - Contexto: Vercel advirtió que el rango abierto `>=20.9.0` podía saltar automáticamente a una nueva versión mayor de Node.js.
-- Decisión: Fijar el runtime en `20.x`, que cumple el mínimo de Next.js 16 y recibe parches de Node.js 20 sin cambiar de versión mayor.
+- Decisión final: Fijar el runtime en `24.x`, compatible con Next.js 16 y alineado con el entorno local del proyecto.
 
 ---
 
