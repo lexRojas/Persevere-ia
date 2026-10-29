@@ -6,11 +6,9 @@ export default withAuth(
     const token = req.nextauth.token
     const pathname = req.nextUrl.pathname
 
-    // Rutas protegidas del docente
-    if (pathname.startsWith('/docente')) {
-      if (!token || (token.role as string) !== 'TEACHER' && (token.role as string) !== 'ADMIN') {
-        return NextResponse.redirect(new URL('/login', req.url))
-      }
+    // El panel administrativo es exclusivo del rol ADMIN.
+    if (pathname.startsWith('/admin') && token?.role !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/panel', req.url))
     }
 
     // Rutas protegidas del estudiante
@@ -30,5 +28,5 @@ export default withAuth(
 )
 
 export const config = {
-  matcher: ['/docente/:path*', '/alumno/:path*'],
+  matcher: ['/admin/:path*', '/docente/:path*', '/alumno/:path*'],
 }

@@ -67,11 +67,14 @@ Este proyecto sigue **Specification-Driven Development (SDD)**:
 
 | Rol | Puede hacer | Límites de acceso |
 |-----|-------------|-------------------|
-| Profesora / administradora | Gestionar alumnos, ensambles, planes, clases, evaluaciones, objetivos, repertorio, grabaciones y reportes. | Acceso completo solo dentro de la academia. |
+| Administrador | Gestionar profesores, estudiantes, ensambles, planes, cuentas y configuración de la academia. | Acceso administrativo completo dentro de la academia. |
+| Profesor | Gestionar sus estudiantes, clases, evaluaciones, objetivos, repertorio y bitácoras según asignación. | Sin acceso administrativo global ni expedientes no asignados. |
 | Estudiante | Consultar avances, metas, piezas, práctica, habilidades, herramientas y ensamble asignado. | Solo sus propios datos y contenidos compartidos con su ensamble. |
 | Representante de menor (propuesto) | Autorizar y acompañar el acceso, consultar información habilitada, gestionar consentimientos. | Sin acceso a expedientes ajenos; permisos configurados por la academia. |
 
 Cada estudiante tendrá una cuenta o modalidad de acceso segura. La profesora decide qué observaciones son visibles para el estudiante y cuáles permanecen solo en la bitácora docente.
+
+En la etapa actual, cada usuario tendrá exactamente un rol y un único perfil compatible. No se contemplan múltiples roles simultáneos.
 
 ---
 

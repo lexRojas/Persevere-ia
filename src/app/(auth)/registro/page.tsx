@@ -51,7 +51,7 @@ export default function RegistroPage() {
         return
       }
 
-      router.replace('/')
+      router.replace('/panel')
       router.refresh()
     } catch {
       setError('No se pudo conectar con el servidor. Inténtalo nuevamente.')

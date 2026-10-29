@@ -1,10 +1,16 @@
 # SDD — Software Design Document: Persevere
 
-**Proyecto:** Plataforma Persevere  
-**Versión:** 1.0 (borrador inicial)  
-**Fuente:** `Persevere_Requisitos (2).docx`  
-**Metodología:** Specification-Driven Development (SDD)  
-**Estado:** Por revisar con el usuario antes de implementar el MVP.
+- **Proyecto:** Plataforma Persevere
+- **Versión:** 1.1 (borrador evolutivo)
+- **Fuente:** `Persevere_Requisitos (2).docx`
+- **Metodología:** Specification-Driven Development (SDD)
+- **Estado:** SDD general vigente; especificaciones de módulo en elaboración.
+
+## Especificaciones complementarias
+
+| ID | Documento | Estado |
+|----|-----------|--------|
+| SDD-ADM-001 | [`specifications/admin-dashboard.md`](specifications/admin-dashboard.md) | Validada; layout y CRUD de Estudiantes implementados |
 
 ---
 
@@ -22,7 +28,8 @@ Incluye: bitácora de clases, repertorio, plan curricular, objetivos, evaluacion
 
 | Rol | Descripción | Permisos clave |
 |-----|-------------|----------------|
-| Profesora / administradora | Gestión completa de la academia | Crear estudiantes, ensambles, planes, clases, evaluaciones; revisar IA; ver todos los expedientes. |
+| Administrador | Gestión completa de la academia | Gestionar profesores, estudiantes, planes, ensambles, cuentas y configuración. |
+| Profesor | Seguimiento pedagógico de estudiantes asignados | Gestionar clases, bitácoras, evaluaciones, objetivos y repertorio según sus permisos. |
 | Estudiante | Consulta de su propio progreso | Ver su perfil, habilidades, piezas, práctica, ensamble asignado; registrar práctica. |
 | Representante de menor (propuesto) | Autorización y acompañamiento | Gestionar consentimientos; consultar información habilitada. |
 
@@ -165,6 +172,8 @@ ResultadoIA (id, claseId, tipo IA-01..IA-05, contenido, estado borrador/aprobado
 - Un `Estudiante` pertenece a un `Nivel` y tiene muchas `Clase`, `Evaluacion`, `EstudianteObjetivo`, `EstudiantePieza`, `Practica`.
 - Una `Clase` pertenece a un `Estudiante` y a una `Docente`; tiene una `BitacoraClase` y puede tener muchos `Archivo` y `ResultadoIA`.
 - Un `Objetivo` pertenece a un `PlanEstudios`; su estado por estudiante está en `EstudianteObjetivo`.
+- La relación entre `Docente` y `Estudiante` se deriva de las clases compartidas; no existe asignación directa.
+- Cada estudiante puede tener uno o más objetivos mediante `EstudianteObjetivo`; los objetivos actuales son las asociaciones en estado `EN_PROCESO`.
 - Una `PiezaMusical` se relaciona con estudiantes vía `EstudiantePieza` (estado de avance).
 - Un `Ensamble` agrupa `EnsambleIntegrante` y `EnsamblePieza`.
 
@@ -180,7 +189,8 @@ ResultadoIA (id, claseId, tipo IA-01..IA-05, contenido, estado borrador/aprobado
 |------|-------|-------------|------------|
 | `/` | (root) | Landing / redirección por rol | Pública |
 | `/login`, `/registro`, `/recuperar` | (auth) | Autenticación | Pública |
-| `/docente/...` | (dashboard) | Panel de la docente | Rol `TEACHER`/`ADMIN` |
+| `/admin/...` | (dashboard) | Panel administrativo | Rol `ADMIN` |
+| `/profesor/...` | (dashboard) | Panel del profesor | Rol `TEACHER` |
 | `/alumno/...` | (dashboard) | Panel del estudiante | Rol `STUDENT` |
 | `/api/...` | — | Rutas API | Según endpoint |
 

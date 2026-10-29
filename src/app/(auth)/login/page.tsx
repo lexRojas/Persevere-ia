@@ -2,6 +2,7 @@
 
 import { signIn } from 'next-auth/react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -25,7 +26,9 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>
 
 export default function LoginPage() {
+  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const {
     register,
@@ -37,14 +40,24 @@ export default function LoginPage() {
 
   const onSubmit = async (data: FormValues) => {
     setError(null)
-    const result = await signIn('credentials', {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    })
+    setIsSubmitting(true)
 
-    if (result?.error) {
-      setError('Correo o contraseña incorrectos')
+    try {
+      const result = await signIn('credentials', {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        setError('Correo o contraseña incorrectos')
+        return
+      }
+
+      router.replace('/panel')
+      router.refresh()
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -118,8 +131,8 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <Button type="submit" className={buttonVariants({ className: 'w-full' })}>
-              Iniciar sesión
+            <Button type="submit" disabled={isSubmitting} className={buttonVariants({ className: 'w-full' })}>
+              {isSubmitting ? 'Iniciando sesión…' : 'Iniciar sesión'}
             </Button>
           </div>
         </form>

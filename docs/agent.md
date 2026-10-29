@@ -28,7 +28,7 @@ Si un requerimiento no está en el SDD o está marcado como "propuesto/opcional/
 | UI base | shadcn/ui sobre Radix UI | Componentes accesibles; no reinventar controles comunes (botón, input, diálogo, etc.). |
 | ORM | Prisma + MySQL | Schema único en `prisma/schema.prisma`. Un solo cliente Prisma singleton en `src/lib/db.ts`. |
 | Validación | Zod | Esquemas en `src/lib/validations.ts`, compartidos entre API y formularios. |
-| Autenticación | NextAuth.js / Auth.js | Sesiones protegidas; middleware para proteger rutas por rol. |
+| Autenticación | NextAuth.js / Auth.js | Sesiones protegidas; `proxy.ts` y servidor protegen rutas por rol. |
 | Formularios | React Hook Form + Zod resolver | Validación en cliente y servidor. |
 | Gráficos | recharts | Radar de habilidades, barras de progreso, histórico. |
 | Archivos | Almacenamiento S3-compatible | Nunca guardar binarios en MySQL; guardar URL/key en la BD. |
@@ -50,14 +50,16 @@ Si un requerimiento no está en el SDD o está marcado como "propuesto/opcional/
 src/
   app/                 # Next.js App Router (rutas y layouts)
     (auth)/            # Auth group: login, registro, recuperación
-    (dashboard)/       # Dashboard group (layout protegido)
-      teacher/         # Vistas de la docente
+    (dashboard)/       # Dashboard group (layouts protegidos)
+      admin/           # Vistas del administrador
+      teacher/         # Vistas del profesor
       student/         # Vistas del estudiante
     api/               # Rutas API (Next.js route handlers)
     layout.tsx         # Layout raíz
     page.tsx           # Landing / redirección por rol
   components/          # Componentes React
     ui/                # shadcn/ui base (botón, input, diálogo, etc.)
+    admin/             # Componentes exclusivos del administrador
     student/           # Componentes exclusivos del estudiante
     teacher/           # Componentes exclusivos de la docente
     ensemble/          # Componentes de ensamble
@@ -83,7 +85,7 @@ prisma/
 2. **Modelo de datos:** actualizar `prisma/schema.prisma` si hay nuevas entidades o relaciones; crear migración.
 3. **Validación:** crear/actualizar esquema Zod en `src/lib/validations.ts`.
 4. **API:** crear ruta en `src/app/api/...` con validación de entrada, autorización por rol y respuesta tipada.
-5. **UI:** crear componente en la carpeta correspondiente (`student/`, `teacher/`, etc.) usando Tailwind y shadcn/ui.
+5. **UI:** crear componente en la carpeta correspondiente (`admin/`, `student/`, `teacher/`, etc.) usando Tailwind y shadcn/ui.
 6. **Integración:** conectar página de `src/app/...` con la API y los componentes.
 7. **Documentar:** registrar el cambio en `docs/memory.md`.
 
@@ -114,27 +116,27 @@ Pide confirmación antes de:
 
 ```bash
 # Instalar dependencias
-npm install
+pnpm install
 
 # Ejecutar en desarrollo
-npm run dev
+pnpm dev
 
 # Construir para producción
-npm run build
+pnpm build
 
 # Iniciar en producción
-npm start
+pnpm start
 
 # Linter y types
-npm run lint
-npx tsc --noEmit
+pnpm lint
+pnpm exec tsc --noEmit
 
 # Prisma
-npx prisma generate            # Generar cliente Prisma
-npx prisma migrate dev         # Crear y aplicar migración en desarrollo
-npx prisma migrate deploy      # Aplicar migraciones en producción
-npx prisma db seed             # Cargar datos semilla
-npx prisma studio              # Interfaz visual de la base de datos
+pnpm exec prisma generate            # Generar cliente Prisma
+pnpm exec prisma migrate dev         # Crear y aplicar migración en desarrollo
+pnpm exec prisma migrate deploy      # Aplicar migraciones en producción
+pnpm exec prisma db seed             # Cargar datos semilla
+pnpm exec prisma studio              # Interfaz visual de la base de datos
 ```
 
 ---

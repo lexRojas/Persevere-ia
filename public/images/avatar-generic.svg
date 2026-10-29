@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title description">
+  <title id="title">Avatar genérico</title>
+  <desc id="description">Silueta genérica de una persona</desc>
+  <circle cx="48" cy="48" r="46" fill="#f4f4f5" stroke="#ef3b23" stroke-width="4"/>
+  <circle cx="48" cy="36" r="16" fill="#3f3f46"/>
+  <path d="M20 80c3-17 14-27 28-27s25 10 28 27" fill="#3f3f46"/>
+</svg>
