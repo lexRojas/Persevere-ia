@@ -7,13 +7,15 @@
     "node": "24.x"
   },
   "description": "Plataforma de seguimiento del aprendizaje musical, bitácora docente y gamificación del progreso (violín).",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint .",
-    "postinstall": "prisma generate"
-  },
+"scripts": {
+  "dev": "next dev",
+  "build": "prisma generate && prisma migrate deploy && next build",
+  "start": "next start",
+  "lint": "eslint .",
+  "postinstall": "prisma generate",
+  "db:migrate": "prisma migrate deploy",
+  "db:status": "prisma migrate status"
+},
   "dependencies": {
     "@hookform/resolvers": "3.9.0",
     "@prisma/client": "5.14.0",
