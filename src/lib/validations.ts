@@ -157,6 +157,33 @@ export const actualizarClaseAdminSchema = z.object({
   bitacora: bitacoraSchema.nullable().optional(),
 }).refine((data) => Object.keys(data).length > 0, 'No se recibieron cambios')
 
+export const representanteAdminSchema = z.object({
+  nombre: z.string().trim().min(2, 'El nombre es requerido').max(100),
+  email: z.string().trim().email('Correo inválido').max(191),
+  telefono: z.string().trim().max(50).optional(),
+  relacion: z.string().trim().max(100).optional(),
+  direccion: z.string().trim().max(500).optional(),
+  estado: z.enum(['ACTIVO', 'INACTIVO']).default('ACTIVO'),
+})
+
+export const crearRepresentanteAdminSchema = representanteAdminSchema.extend({
+  password: z
+    .string()
+    .min(8, 'La contraseña temporal debe tener al menos 8 caracteres')
+    .max(72, 'La contraseña no puede superar 72 caracteres'),
+})
+
+export const actualizarRepresentanteAdminSchema = representanteAdminSchema
+  .partial()
+  .extend({
+    password: z
+      .string()
+      .min(8, 'La nueva contraseña debe tener al menos 8 caracteres')
+      .max(72, 'La contraseña no puede superar 72 caracteres')
+      .optional(),
+  })
+  .refine((data) => Object.keys(data).length > 0, 'No se recibieron cambios')
+
 export const evaluacionSchema = z.object({
   estudianteId: z.string().cuid(),
   docenteId: z.string().cuid(),

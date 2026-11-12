@@ -26,7 +26,7 @@ export function AdminHeader({ user }: AdminHeaderProps) {
         <input
           type="search"
           placeholder="Buscar en Persevere..."
-          aria-label="Buscar profesores, estudiantes, clases, planes o ensambles"
+          aria-label="Buscar profesores, estudiantes, clases, planes, ensambles o representantes"
           className="h-11 w-full rounded-full border border-zinc-200 bg-zinc-50 pl-10 pr-4 text-sm outline-none transition focus:border-[#ef3b23] focus:bg-white focus:ring-2 focus:ring-[#ef3b23]/15"
         />
       </div>

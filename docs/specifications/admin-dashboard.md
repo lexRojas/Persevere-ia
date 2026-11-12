@@ -303,7 +303,7 @@ La interfaz ordinaria utilizará estados Activo, Inactivo o Archivado. No elimin
 
 ### Acciones contextuales
 
-Nuevo estudiante, ver expediente, editar, asignar nivel/plan, registrar clase, gestionar repertorio, agregar a ensamble y activar/desactivar/archivar.
+Nuevo estudiante, ver expediente, editar, asignar nivel/plan, asignar representante, registrar clase, gestionar repertorio, agregar a ensamble y activar/desactivar/archivar.
 
 ---
 
@@ -403,6 +403,7 @@ Cada listado y formulario contemplará: cargando, vacío, sin coincidencias, err
 | Responsable de ensamble | Resuelto | Relación histórica muchos-a-muchos con `Docente` |
 | Próximo ensayo | Resuelto | Eventos `Ensayo`; el listado calcula el próximo programado |
 | Estado de ensamble | Resuelto | `ACTIVO`, `INACTIVO`, `ARCHIVADO` |
+| Representante–estudiante | Resuelto | Relación uno-a-muchos mediante `Estudiante.representanteId` |
 
 Las ampliaciones restantes de Prisma se implementarán con migraciones versionadas y compatibles con los datos existentes.
 
@@ -556,3 +557,15 @@ AdminLayout
 - El módulo incorpora CRUD del catálogo de piezas musicales con archivado lógico.
 - Las rutas de ensambles y piezas musicales exigen sesión `ADMIN`.
 - Archivar un ensamble conserva responsables, integrantes, repertorio y ensayos.
+
+### Iteración 6 — CRUD de Representantes completado
+
+- Estados permitidos: `ACTIVO`, `INACTIVO`.
+- Un representante puede tener varios estudiantes; cada estudiante tiene un solo representante.
+- Los campos incluyen nombre, correo, teléfono, relación, dirección y estado.
+- El administrador define la contraseña temporal al crear la cuenta.
+- Solo representantes `ACTIVO` pueden autenticarse.
+- Desactivar cambia el estado a `INACTIVO`; no elimina `User`, `Representante` ni el vínculo con estudiantes.
+- Las rutas `POST /api/admin/representantes` y `PATCH /api/admin/representantes/[id]` exigen sesión `ADMIN`.
+- La interfaz ofrece alta, consulta de perfil, edición y confirmación de desactivación desde el menú contextual.
+- Migración agrega `representanteId` a `Estudiante` y campos a `Representante`.

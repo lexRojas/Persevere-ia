@@ -52,7 +52,9 @@ export async function POST(request: Request) {
         role,
         ...(role === Role.STUDENT && { estudiante: { create: {} } }),
         ...(role === Role.TEACHER && { docente: { create: {} } }),
-        ...(role === Role.REPRESENTATIVE && { representante: { create: {} } }),
+        ...(role === Role.REPRESENTATIVE && {
+          representante: { create: { nombre: name.trim() } },
+        }),
       },
       select: { id: true, name: true, email: true, role: true },
     })

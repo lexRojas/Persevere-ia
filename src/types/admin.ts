@@ -5,6 +5,7 @@ export type AdminModuleKey =
   | 'planes-estudio'
   | 'ensambles'
   | 'clases'
+  | 'representantes'
 
 export interface AdminListColumn {
   key: string
@@ -153,4 +154,16 @@ export interface AdminClassFormData {
   estado: 'PROGRAMADA' | 'REALIZADA' | 'CANCELADA'
   bitacora: AdminClassJournalData | null
   revisiones: AdminJournalRevisionData[]
+}
+
+export interface AdminRepresentanteFormData {
+  id: string
+  nombre: string
+  email: string
+  telefono: string
+  relacion: string
+  direccion: string
+  estado: 'ACTIVO' | 'INACTIVO'
+  estudiantes: string
+  ultimoAcceso: string
 }

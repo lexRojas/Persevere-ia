@@ -1,23 +1,25 @@
 import Link from 'next/link'
-import { BookOpenText, CalendarDays, GraduationCap, Music2, UsersRound } from 'lucide-react'
+import { BookOpenText, CalendarDays, GraduationCap, Music2, UserCircle, UsersRound } from 'lucide-react'
 import { ModuleHeader } from '@/components/admin/module-header'
 import { db } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboardPage() {
-  const [profesores, estudiantes, clases, planes, ensambles] = await Promise.all([
+  const [profesores, estudiantes, clases, planes, ensambles, representantes] = await Promise.all([
     db.docente.count(),
     db.estudiante.count(),
     db.clase.count(),
     db.planEstudios.count(),
     db.ensamble.count(),
+    db.representante.count(),
   ])
 
   const modules = [
     { label: 'Profesores', count: profesores, href: '/admin/profesores', icon: UsersRound, description: 'Perfiles, agenda y estudiantes relacionados.' },
     { label: 'Estudiantes', count: estudiantes, href: '/admin/estudiantes', icon: GraduationCap, description: 'Expedientes, objetivos y seguimiento.' },
     { label: 'Clases', count: clases, href: '/admin/clases', icon: CalendarDays, description: 'Agenda, bitácoras y seguimiento pedagógico.' },
+    { label: 'Representantes', count: representantes, href: '/admin/representantes', icon: UserCircle, description: 'Perfiles de representantes y vinculaciones.' },
     { label: 'Planes de estudio', count: planes, href: '/admin/planes-estudio', icon: BookOpenText, description: 'Currículo, versiones y objetivos.' },
     { label: 'Ensambles', count: ensambles, href: '/admin/ensambles', icon: Music2, description: 'Integrantes, repertorio y ensayos.' },
   ]

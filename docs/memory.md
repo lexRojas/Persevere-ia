@@ -131,6 +131,14 @@ Este archivo es el diario de bordo del proyecto. Aquí se registran el estado ac
 - Validación: ESLint, TypeScript, Prisma y build aprobados; la prueba integral confirmó varios profesores, retiro lógico, ensayos, archivado y autorización administrativa.
 - Limpieza: El ensamble y la pieza musical temporales fueron eliminados al finalizar.
 
+## [2026-11-13] CRUD administrativo de representantes
+- Decisión: Cada representante puede tener varios estudiantes; cada estudiante tiene un solo representante (uno a muchos).
+- Implementación: Alta, detalle, edición y desactivación lógica; gestión de nombre, correo, teléfono, relación y dirección.
+- Autenticación: El administrador define la contraseña temporal; solo representantes activos pueden iniciar sesión.
+- Historial: Desactivar cambia el estado a INACTIVO sin eliminar `User`, `Representante` ni el vínculo con estudiantes.
+- Migración: Agrega `representanteId` a `Estudiante` y campos a `Representante`.
+- Validación: ESLint, TypeScript, Prisma y build aprobados.
+
 ---
 
 ## Próximos pasos (inmediatos)

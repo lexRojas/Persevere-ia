@@ -10,7 +10,7 @@
 
 | ID | Documento | Estado |
 |----|-----------|--------|
-| SDD-ADM-001 | [`specifications/admin-dashboard.md`](specifications/admin-dashboard.md) | Validada; layout y CRUD de Estudiantes, Profesores, Planes y Ensambles implementados |
+| SDD-ADM-001 | [`specifications/admin-dashboard.md`](specifications/admin-dashboard.md) | Validada; layout y CRUD de Estudiantes, Profesores, Planes, Ensambles y Representantes implementados |
 
 ---
 

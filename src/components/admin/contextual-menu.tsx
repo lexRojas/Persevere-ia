@@ -43,6 +43,12 @@ const classActionTypes: Record<string, 'edit' | 'deactivate' | 'view' | undefine
   Cancelar: 'deactivate',
 }
 
+const representativeActionTypes: Record<string, 'edit' | 'deactivate' | 'view' | undefined> = {
+  'Ver perfil': 'view',
+  Editar: 'edit',
+  Desactivar: 'deactivate',
+}
+
 const moduleContexts: Record<string, ModuleContext> = {
   '/admin/profesores': {
     title: 'Profesores',
@@ -68,6 +74,11 @@ const moduleContexts: Record<string, ModuleContext> = {
     title: 'Clases',
     createLabel: 'Nueva clase',
     selectedActions: ['Ver detalle', 'Editar', 'Cancelar'],
+  },
+  '/admin/representantes': {
+    title: 'Representantes',
+    createLabel: 'Nuevo representante',
+    selectedActions: ['Ver perfil', 'Editar', 'Desactivar'],
   },
 }
 
@@ -113,7 +124,9 @@ export function ContextualMenu() {
                       ? ensembleActionTypes[action]
                       : pathname.startsWith('/admin/clases')
                         ? classActionTypes[action]
-                        : undefined
+                        : pathname.startsWith('/admin/representantes')
+                          ? representativeActionTypes[action]
+                          : undefined
               const navigationHref = pathname.startsWith('/admin/estudiantes') && action === 'Registrar clase'
                 ? `/admin/clases?estudianteId=${selectedEntity.id}&action=create`
                 : pathname.startsWith('/admin/profesores') && action === 'Ver agenda'
@@ -147,9 +160,9 @@ export function ContextualMenu() {
           <div className="mt-4 space-y-2">
             <button
               type="button"
-              onClick={() => (pathname.startsWith('/admin/estudiantes') || pathname.startsWith('/admin/profesores') || pathname.startsWith('/admin/planes-estudio') || pathname.startsWith('/admin/ensambles') || pathname.startsWith('/admin/clases')) && requestAction('create')}
-              disabled={!pathname.startsWith('/admin/estudiantes') && !pathname.startsWith('/admin/profesores') && !pathname.startsWith('/admin/planes-estudio') && !pathname.startsWith('/admin/ensambles') && !pathname.startsWith('/admin/clases')}
-              title={pathname.startsWith('/admin/estudiantes') || pathname.startsWith('/admin/profesores') || pathname.startsWith('/admin/planes-estudio') || pathname.startsWith('/admin/ensambles') || pathname.startsWith('/admin/clases') ? undefined : 'Disponible en una siguiente iteración'}
+              onClick={() => (pathname.startsWith('/admin/estudiantes') || pathname.startsWith('/admin/profesores') || pathname.startsWith('/admin/planes-estudio') || pathname.startsWith('/admin/ensambles') || pathname.startsWith('/admin/clases') || pathname.startsWith('/admin/representantes')) && requestAction('create')}
+              disabled={!pathname.startsWith('/admin/estudiantes') && !pathname.startsWith('/admin/profesores') && !pathname.startsWith('/admin/planes-estudio') && !pathname.startsWith('/admin/ensambles') && !pathname.startsWith('/admin/clases') && !pathname.startsWith('/admin/representantes')}
+              title={pathname.startsWith('/admin/estudiantes') || pathname.startsWith('/admin/profesores') || pathname.startsWith('/admin/planes-estudio') || pathname.startsWith('/admin/ensambles') || pathname.startsWith('/admin/clases') || pathname.startsWith('/admin/representantes') ? undefined : 'Disponible en una siguiente iteración'}
               className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#ef3b23] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#d9321d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ef3b23] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-zinc-300"
             >
               <Plus className="size-4" aria-hidden="true" /> {context.createLabel}
@@ -178,7 +191,7 @@ export function ContextualMenu() {
       )}
 
       <p className="mt-5 border-t border-zinc-100 pt-4 text-xs leading-5 text-zinc-400">
-        {pathname.startsWith('/admin/estudiantes') || pathname.startsWith('/admin/profesores') || pathname.startsWith('/admin/planes-estudio') || pathname.startsWith('/admin/ensambles') || pathname.startsWith('/admin/clases')
+        {pathname.startsWith('/admin/estudiantes') || pathname.startsWith('/admin/profesores') || pathname.startsWith('/admin/planes-estudio') || pathname.startsWith('/admin/ensambles') || pathname.startsWith('/admin/clases') || pathname.startsWith('/admin/representantes')
           ? 'Creación, edición y desactivación disponibles. Las demás acciones se habilitarán progresivamente.'
           : 'Los formularios y operaciones CRUD se conectarán en una siguiente iteración.'}
       </p>
