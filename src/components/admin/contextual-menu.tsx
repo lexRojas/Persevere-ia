@@ -79,7 +79,7 @@ const moduleContexts: Record<string, ModuleContext> = {
   '/admin/representantes': {
     title: 'Representantes',
     createLabel: 'Nuevo representante',
-    selectedActions: ['Ver perfil', 'Editar', 'Desactivar'],
+    selectedActions: ['Ver perfil', 'Editar', 'Asignar Estudiantes', 'Desactivar'],
   },
 }
 
