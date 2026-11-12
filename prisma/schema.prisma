@@ -44,8 +44,9 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-  password      String?   // hash (bcrypt)
+  password      String? // hash (bcrypt)
   role          Role      @default(STUDENT)
+  lastLoginAt   DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -53,9 +54,10 @@ model User {
   sessions Session[]
 
   // Un usuario puede ser estudiante, docente o representante
-  estudiante     Estudiante?
-  docente        Docente?
-  representante  Representante?
+  estudiante         Estudiante?
+  docente            Docente?
+  representante      Representante?
+  revisionesBitacora BitacoraRevision[]
 
   @@index([email])
   @@index([role])
@@ -65,33 +67,41 @@ model User {
 // Dominio educativo (según documento de requisitos)
 // ============================================================
 model Nivel {
-  id          String   @id @default(cuid())
-  nombre      String   // Básico, Intermedio, Avanzado
+  id          String         @id @default(cuid())
+  nombre      String // Básico, Intermedio, Avanzado
   orden       Int
   descripcion String?
+  activo      Boolean        @default(true)
   estudiantes Estudiante[]
-  createdAt   DateTime @default(now())
+  planes      PlanEstudios[]
+  createdAt   DateTime       @default(now())
+
+  @@unique([nombre])
 }
 
 model PlanEstudios {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   nombre    String
-  version   String   @default("1.0")
-  activo    Boolean  @default(true)
+  version   String     @default("1.0")
+  estado    PlanEstado @default(BORRADOR)
+  niveles   Nivel[]
   objetivos Objetivo[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([nombre, version])
 }
 
 model Objetivo {
-  id              String   @id @default(cuid())
-  planEstudiosId  String
-  unidad          String   // unidad / área del currículo
-  descripcion     String
-  orden           Int
-  criteriosLogro  String?
-  planEstudios    PlanEstudios @relation(fields: [planEstudiosId], references: [id], onDelete: Cascade)
-  estudiantes     EstudianteObjetivo[]
+  id             String               @id @default(cuid())
+  planEstudiosId String
+  unidad         String // unidad / área del currículo
+  descripcion    String
+  orden          Int
+  criteriosLogro String?
+  activo         Boolean              @default(true)
+  planEstudios   PlanEstudios         @relation(fields: [planEstudiosId], references: [id], onDelete: Cascade)
+  estudiantes    EstudianteObjetivo[]
 
   @@index([planEstudiosId])
 }
@@ -106,29 +116,29 @@ model Estudiante {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  usuario     User          @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  nivel       Nivel?        @relation(fields: [nivelId], references: [id])
-  clases      Clase[]
+  usuario      User                 @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  nivel        Nivel?               @relation(fields: [nivelId], references: [id])
+  clases       Clase[]
   evaluaciones Evaluacion[]
-  objetivos   EstudianteObjetivo[]
-  piezas      EstudiantePieza[]
-  practicas   Practica[]
-  ensambles   EnsambleIntegrante[]
-  archivos    Archivo[]
+  objetivos    EstudianteObjetivo[]
+  piezas       EstudiantePieza[]
+  practicas    Practica[]
+  ensambles    EnsambleIntegrante[]
+  archivos     Archivo[]
 
   @@index([nivelId])
   @@index([usuarioId])
 }
 
 model EstudianteObjetivo {
-  id                 String           @id @default(cuid())
+  id                 String         @id @default(cuid())
   estudianteId       String
   objetivoId         String
-  estado             ObjetivoEstado   @default(NO_INICIADO) // NO_INICIADO | EN_PROCESO | LOGRADO
+  estado             ObjetivoEstado @default(NO_INICIADO) // NO_INICIADO | EN_PROCESO | LOGRADO
   fecha              DateTime?
   observacionDocente String?
-  estudiante         Estudiante       @relation(fields: [estudianteId], references: [id], onDelete: Cascade)
-  objetivo           Objetivo         @relation(fields: [objetivoId], references: [id], onDelete: Cascade)
+  estudiante         Estudiante     @relation(fields: [estudianteId], references: [id], onDelete: Cascade)
+  objetivo           Objetivo       @relation(fields: [objetivoId], references: [id], onDelete: Cascade)
 
   @@unique([estudianteId, objetivoId])
   @@index([estudianteId])
@@ -136,20 +146,22 @@ model EstudianteObjetivo {
 }
 
 model Clase {
-  id               String   @id @default(cuid())
+  id               String      @id @default(cuid())
   estudianteId     String
   docenteId        String
   fecha            DateTime
-  duracion         Int?     // minutos
+  duracion         Int? // minutos
   nivel            String?
-  piezasTrabajadas String?
-  creadoPorIA      Boolean  @default(false)
-  createdAt        DateTime @default(now())
+  piezasTrabajadas String?     @db.Text
+  estado           ClaseEstado @default(PROGRAMADA)
+  creadoPorIA      Boolean     @default(false)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
-  estudiante Estudiante @relation(fields: [estudianteId], references: [id], onDelete: Cascade)
-  docente    Docente    @relation(fields: [docenteId], references: [id], onDelete: Cascade)
-  bitacora   BitacoraClase?
-  archivos   Archivo[]
+  estudiante   Estudiante     @relation(fields: [estudianteId], references: [id], onDelete: Cascade)
+  docente      Docente        @relation(fields: [docenteId], references: [id], onDelete: Cascade)
+  bitacora     BitacoraClase?
+  archivos     Archivo[]
   resultadosIA ResultadoIA[]
 
   @@index([estudianteId])
@@ -158,34 +170,58 @@ model Clase {
 }
 
 model BitacoraClase {
-  id                 String   @id @default(cuid())
-  claseId            String   @unique
-  objetivosSesion    String?
-  logrosObservados   String?
-  dificultades       String?
-  aspectosRecurrentes String?
-  trabajoCasa        String?
-  notaPrivada        String?   @db.Text  // notas internas del docente (no visibles al alumno)
-  revisionPublicacion String?   // qué se publica al alumno o al ensamble
-  creadoPorIA        Boolean   @default(false)
-  aprobadoPorDocente Boolean   @default(false)
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  id                  String         @id @default(cuid())
+  claseId             String         @unique
+  objetivosSesion     String?        @db.Text
+  logrosObservados    String?        @db.Text
+  dificultades        String?        @db.Text
+  aspectosRecurrentes String?        @db.Text
+  trabajoCasa         String?        @db.Text
+  notaPrivada         String?        @db.Text // notas internas del docente (no visibles al alumno)
+  revisionPublicacion String?        @db.Text // qué se publica al alumno o al ensamble
+  creadoPorIA         Boolean        @default(false)
+  estado              BitacoraEstado @default(BORRADOR)
+  version             Int            @default(1)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
 
-  clase Clase @relation(fields: [claseId], references: [id], onDelete: Cascade)
+  clase      Clase              @relation(fields: [claseId], references: [id], onDelete: Cascade)
+  revisiones BitacoraRevision[]
 
   @@index([claseId])
 }
 
+model BitacoraRevision {
+  id                  String         @id @default(cuid())
+  bitacoraId          String
+  version             Int
+  objetivosSesion     String?        @db.Text
+  logrosObservados    String?        @db.Text
+  dificultades        String?        @db.Text
+  aspectosRecurrentes String?        @db.Text
+  trabajoCasa         String?        @db.Text
+  notaPrivada         String?        @db.Text
+  revisionPublicacion String?        @db.Text
+  creadoPorIA         Boolean        @default(false)
+  estado              BitacoraEstado
+  editadoPorId        String?
+  createdAt           DateTime       @default(now())
+  bitacora            BitacoraClase  @relation(fields: [bitacoraId], references: [id], onDelete: Cascade)
+  editadoPor          User?          @relation(fields: [editadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([bitacoraId, version])
+  @@index([editadoPorId])
+}
+
 model Evaluacion {
-  id          String   @id @default(cuid())
+  id           String     @id @default(cuid())
   estudianteId String
-  docenteId   String
-  fecha       DateTime
-  comentario  String?
-  dimensiones Json     // { afinacion: 7, ritmo: 6, fluidez: 8, postura: 7, habitosEstudio: 6 }
-  estudiante  Estudiante @relation(fields: [estudianteId], references: [id], onDelete: Cascade)
-  docente     Docente    @relation(fields: [docenteId], references: [id], onDelete: Cascade)
+  docenteId    String
+  fecha        DateTime
+  comentario   String?
+  dimensiones  Json // { afinacion: 7, ritmo: 6, fluidez: 8, postura: 7, habitosEstudio: 6 }
+  estudiante   Estudiante @relation(fields: [estudianteId], references: [id], onDelete: Cascade)
+  docente      Docente    @relation(fields: [docenteId], references: [id], onDelete: Cascade)
 
   @@index([estudianteId])
   @@index([docenteId])
@@ -193,16 +229,17 @@ model Evaluacion {
 }
 
 model Docente {
-  id          String   @id @default(cuid())
-  usuarioId   String   @unique
-  academiaId  String?
+  id           String        @id @default(cuid())
+  usuarioId    String        @unique
   especialidad String? // violín, etc.
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  estado       DocenteEstado @default(ACTIVO)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
-  usuario      User        @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuario      User              @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   clases       Clase[]
   evaluaciones Evaluacion[]
+  ensambles    EnsambleDocente[]
 
   @@index([usuarioId])
 }
@@ -216,21 +253,25 @@ model Representante {
 }
 
 model PiezaMusical {
-  id        String   @id @default(cuid())
-  nombre    String
-  nivel     String?
-  notas     String?
+  id          String            @id @default(cuid())
+  nombre      String
+  nivel       String?
+  notas       String?
+  activo      Boolean           @default(true)
   estudiantes EstudiantePieza[]
-  ensambles EnsamblePieza[]
-  createdAt DateTime @default(now())
+  ensambles   EnsamblePieza[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([nombre])
 }
 
 model EstudiantePieza {
-  id              String   @id @default(cuid())
+  id              String       @id @default(cuid())
   estudianteId    String
   piezaMusicalId  String
-  estado          String   @default("EN_ESTUDIO") // EN_ESTUDIO | COMPLETADA
-  avance          Int      @default(0) // 0-100
+  estado          String       @default("EN_ESTUDIO") // EN_ESTUDIO | COMPLETADA
+  avance          Int          @default(0) // 0-100
   fechaInicio     DateTime?
   fechaCompletada DateTime?
   observaciones   String?
@@ -243,83 +284,121 @@ model EstudiantePieza {
 }
 
 model Practica {
-  id          String   @id @default(cuid())
+  id           String     @id @default(cuid())
   estudianteId String
-  fecha       DateTime
-  minutos     Int?
-  comentario  String?
-  estudiante  Estudiante @relation(fields: [estudianteId], references: [id], onDelete: Cascade)
+  fecha        DateTime
+  minutos      Int?
+  comentario   String?
+  estudiante   Estudiante @relation(fields: [estudianteId], references: [id], onDelete: Cascade)
 
   @@index([estudianteId])
   @@index([fecha])
 }
 
 model Ensamble {
-  id           String   @id @default(cuid())
-  nombre       String
-  descripcion  String?
+  id               String         @id @default(cuid())
+  nombre           String         @unique
+  descripcion      String?
   notasCompartidas String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  estado           EnsambleEstado @default(ACTIVO)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
   integrantes EnsambleIntegrante[]
   piezas      EnsamblePieza[]
+  docentes    EnsambleDocente[]
+  ensayos     Ensayo[]
 
   @@index([nombre])
 }
 
 model EnsambleIntegrante {
-  id        String   @id @default(cuid())
-  ensambleId String
+  id           String     @id @default(cuid())
+  ensambleId   String
   estudianteId String
-  fechaIngreso DateTime @default(now())
-  ensamble   Ensamble  @relation(fields: [ensambleId], references: [id], onDelete: Cascade)
-  estudiante Estudiante @relation(fields: [estudianteId], references: [id], onDelete: Cascade)
+  fechaIngreso DateTime   @default(now())
+  rol          String?
+  activo       Boolean    @default(true)
+  fechaRetiro  DateTime?
+  ensamble     Ensamble   @relation(fields: [ensambleId], references: [id], onDelete: Cascade)
+  estudiante   Estudiante @relation(fields: [estudianteId], references: [id], onDelete: Cascade)
 
   @@unique([ensambleId, estudianteId])
 }
 
 model EnsamblePieza {
-  id              String   @id @default(cuid())
-  ensambleId      String
-  piezaMusicalId  String
+  id                String       @id @default(cuid())
+  ensambleId        String
+  piezaMusicalId    String
   objetivoColectivo String?
-  ensamble          Ensamble    @relation(fields: [ensambleId], references: [id], onDelete: Cascade)
+  activo            Boolean      @default(true)
+  fechaAsignacion   DateTime     @default(now())
+  fechaRetiro       DateTime?
+  ensamble          Ensamble     @relation(fields: [ensambleId], references: [id], onDelete: Cascade)
   piezaMusical      PiezaMusical @relation(fields: [piezaMusicalId], references: [id], onDelete: Cascade)
 
   @@unique([ensambleId, piezaMusicalId])
+}
+
+model EnsambleDocente {
+  id              String    @id @default(cuid())
+  ensambleId      String
+  docenteId       String
+  activo          Boolean   @default(true)
+  fechaAsignacion DateTime  @default(now())
+  fechaRetiro     DateTime?
+  ensamble        Ensamble  @relation(fields: [ensambleId], references: [id], onDelete: Cascade)
+  docente         Docente   @relation(fields: [docenteId], references: [id], onDelete: Cascade)
+
+  @@unique([ensambleId, docenteId])
+  @@index([docenteId])
+}
+
+model Ensayo {
+  id         String       @id @default(cuid())
+  ensambleId String
+  fecha      DateTime
+  duracion   Int?
+  estado     EnsayoEstado @default(PROGRAMADO)
+  notas      String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  ensamble   Ensamble     @relation(fields: [ensambleId], references: [id], onDelete: Cascade)
+
+  @@index([ensambleId])
+  @@index([fecha])
 }
 
 // ============================================================
 // Archivos e IA (Fases 2 y 3, preparadas desde la base)
 // ============================================================
 model Archivo {
-  id             String   @id @default(cuid())
-  claseId        String?
-  estudianteId   String?
-  tipo           String   // AUDIO | VIDEO | PARTITURA | OTRO
-  url            String
-  keyStorage     String   // clave en almacenamiento S3-compatible (fuera de MySQL)
-  consentimiento Boolean  @default(false)
-  revisadoPorDocente Boolean @default(false)
-  createdAt      DateTime @default(now())
+  id                 String   @id @default(cuid())
+  claseId            String?
+  estudianteId       String?
+  tipo               String // AUDIO | VIDEO | PARTITURA | OTRO
+  url                String
+  keyStorage         String // clave en almacenamiento S3-compatible (fuera de MySQL)
+  consentimiento     Boolean  @default(false)
+  revisadoPorDocente Boolean  @default(false)
+  createdAt          DateTime @default(now())
 
-  clase        Clase?     @relation(fields: [claseId], references: [id], onDelete: SetNull)
-  estudiante   Estudiante? @relation(fields: [estudianteId], references: [id], onDelete: SetNull)
+  clase      Clase?      @relation(fields: [claseId], references: [id], onDelete: SetNull)
+  estudiante Estudiante? @relation(fields: [estudianteId], references: [id], onDelete: SetNull)
 
   @@index([claseId])
   @@index([estudianteId])
 }
 
 model ResultadoIA {
-  id              String   @id @default(cuid())
-  claseId         String
-  tipo            String   // IA-01 | IA-02 | IA-03 | IA-04 | IA-05
-  contenido       Json
-  estado          String   @default("BORRADOR") // BORRADOR | APROBADO | RECHAZADO
-  aprobadoPorDocente Boolean @default(false)
-  aprobadoEn      DateTime?
-  createdAt       DateTime @default(now())
+  id                 String    @id @default(cuid())
+  claseId            String
+  tipo               String // IA-01 | IA-02 | IA-03 | IA-04 | IA-05
+  contenido          Json
+  estado             String    @default("BORRADOR") // BORRADOR | APROBADO | RECHAZADO
+  aprobadoPorDocente Boolean   @default(false)
+  aprobadoEn         DateTime?
+  createdAt          DateTime  @default(now())
 
   clase Clase @relation(fields: [claseId], references: [id], onDelete: Cascade)
 
@@ -335,6 +414,41 @@ enum Role {
   TEACHER
   STUDENT
   REPRESENTATIVE
+}
+
+enum DocenteEstado {
+  ACTIVO
+  INACTIVO
+  ARCHIVADO
+}
+
+enum PlanEstado {
+  BORRADOR
+  ACTIVO
+  ARCHIVADO
+}
+
+enum EnsambleEstado {
+  ACTIVO
+  INACTIVO
+  ARCHIVADO
+}
+
+enum EnsayoEstado {
+  PROGRAMADO
+  REALIZADO
+  CANCELADO
+}
+
+enum ClaseEstado {
+  PROGRAMADA
+  REALIZADA
+  CANCELADA
+}
+
+enum BitacoraEstado {
+  BORRADOR
+  APROBADA
 }
 
 enum ObjetivoEstado {

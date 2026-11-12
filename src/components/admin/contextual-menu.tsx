@@ -1,7 +1,7 @@
 'use client'
 
-import { Archive, Eye, FileDown, Pencil, Plus, RotateCcw, SlidersHorizontal, UserPlus } from 'lucide-react'
-import { usePathname } from 'next/navigation'
+import { Archive, Eye, FileDown, ListTree, Pencil, Plus, RotateCcw, SlidersHorizontal, UserPlus } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAdminContext } from '@/components/admin/admin-context'
 
 interface ModuleContext {
@@ -16,11 +16,38 @@ const studentActionTypes: Record<string, 'edit' | 'deactivate' | 'view' | undefi
   Desactivar: 'deactivate',
 }
 
+const teacherActionTypes: Record<string, 'edit' | 'deactivate' | 'view' | undefined> = {
+  'Ver perfil': 'view',
+  Editar: 'edit',
+  Desactivar: 'deactivate',
+}
+
+const studyPlanActionTypes: Record<string, 'edit' | 'deactivate' | 'view' | undefined> = {
+  'Ver estructura': 'view',
+  Editar: 'edit',
+  Archivar: 'deactivate',
+}
+
+const ensembleActionTypes: Record<string, 'edit' | 'deactivate' | 'view' | undefined> = {
+  'Ver detalle': 'view',
+  Editar: 'edit',
+  'Gestionar integrantes': 'edit',
+  'Asignar repertorio': 'edit',
+  'Programar ensayo': 'edit',
+  Archivar: 'deactivate',
+}
+
+const classActionTypes: Record<string, 'edit' | 'deactivate' | 'view' | undefined> = {
+  'Ver detalle': 'view',
+  Editar: 'edit',
+  Cancelar: 'deactivate',
+}
+
 const moduleContexts: Record<string, ModuleContext> = {
   '/admin/profesores': {
     title: 'Profesores',
     createLabel: 'Nuevo profesor',
-    selectedActions: ['Ver perfil', 'Editar', 'Consultar estudiantes', 'Ver agenda', 'Archivar'],
+    selectedActions: ['Ver perfil', 'Editar', 'Consultar estudiantes', 'Ver agenda', 'Desactivar'],
   },
   '/admin/estudiantes': {
     title: 'Estudiantes',
@@ -35,7 +62,12 @@ const moduleContexts: Record<string, ModuleContext> = {
   '/admin/ensambles': {
     title: 'Ensambles',
     createLabel: 'Nuevo ensamble',
-    selectedActions: ['Ver detalle', 'Editar', 'Gestionar integrantes', 'Asignar repertorio', 'Archivar'],
+    selectedActions: ['Ver detalle', 'Editar', 'Gestionar integrantes', 'Asignar repertorio', 'Programar ensayo', 'Archivar'],
+  },
+  '/admin/clases': {
+    title: 'Clases',
+    createLabel: 'Nueva clase',
+    selectedActions: ['Ver detalle', 'Editar', 'Cancelar'],
   },
 }
 
@@ -45,6 +77,7 @@ function getModuleContext(pathname: string) {
 
 export function ContextualMenu() {
   const pathname = usePathname()
+  const router = useRouter()
   const { selectedEntity, clearSelection, requestAction } = useAdminContext()
   const context = getModuleContext(pathname)
 
@@ -70,15 +103,30 @@ export function ContextualMenu() {
           </div>
           <div className="mt-3 space-y-1" aria-label={`Acciones para ${selectedEntity.label}`}>
             {context.selectedActions.map((action, index) => {
-              const actionType = pathname.startsWith('/admin/estudiantes') ? studentActionTypes[action] : undefined
-              const enabled = Boolean(actionType)
+              const actionType = pathname.startsWith('/admin/estudiantes')
+                ? studentActionTypes[action]
+                : pathname.startsWith('/admin/profesores')
+                  ? teacherActionTypes[action]
+                  : pathname.startsWith('/admin/planes-estudio')
+                    ? studyPlanActionTypes[action]
+                    : pathname.startsWith('/admin/ensambles')
+                      ? ensembleActionTypes[action]
+                      : pathname.startsWith('/admin/clases')
+                        ? classActionTypes[action]
+                        : undefined
+              const navigationHref = pathname.startsWith('/admin/estudiantes') && action === 'Registrar clase'
+                ? `/admin/clases?estudianteId=${selectedEntity.id}&action=create`
+                : pathname.startsWith('/admin/profesores') && action === 'Ver agenda'
+                  ? `/admin/clases?docenteId=${selectedEntity.id}`
+                  : undefined
+              const enabled = Boolean(actionType || navigationHref)
               const Icon = index === 0 ? Eye : action === 'Editar' ? Pencil : action === 'Desactivar' || action === 'Archivar' ? Archive : UserPlus
               return (
                 <button
                   key={action}
                   type="button"
                   disabled={!enabled}
-                  onClick={() => actionType && requestAction(actionType)}
+                  onClick={() => navigationHref ? router.push(navigationHref) : actionType && requestAction(actionType)}
                   title={enabled ? undefined : 'Disponible en una siguiente iteración'}
                   className="flex min-h-10 w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-zinc-700 transition hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ef3b23] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-transparent"
                 >
@@ -99,13 +147,23 @@ export function ContextualMenu() {
           <div className="mt-4 space-y-2">
             <button
               type="button"
-              onClick={() => pathname.startsWith('/admin/estudiantes') && requestAction('create')}
-              disabled={!pathname.startsWith('/admin/estudiantes')}
-              title={pathname.startsWith('/admin/estudiantes') ? undefined : 'Disponible en una siguiente iteración'}
+              onClick={() => (pathname.startsWith('/admin/estudiantes') || pathname.startsWith('/admin/profesores') || pathname.startsWith('/admin/planes-estudio') || pathname.startsWith('/admin/ensambles') || pathname.startsWith('/admin/clases')) && requestAction('create')}
+              disabled={!pathname.startsWith('/admin/estudiantes') && !pathname.startsWith('/admin/profesores') && !pathname.startsWith('/admin/planes-estudio') && !pathname.startsWith('/admin/ensambles') && !pathname.startsWith('/admin/clases')}
+              title={pathname.startsWith('/admin/estudiantes') || pathname.startsWith('/admin/profesores') || pathname.startsWith('/admin/planes-estudio') || pathname.startsWith('/admin/ensambles') || pathname.startsWith('/admin/clases') ? undefined : 'Disponible en una siguiente iteración'}
               className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#ef3b23] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#d9321d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ef3b23] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-zinc-300"
             >
               <Plus className="size-4" aria-hidden="true" /> {context.createLabel}
             </button>
+            {pathname.startsWith('/admin/planes-estudio') && (
+              <button type="button" onClick={() => requestAction('manage-levels')} className="flex min-h-10 w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100">
+                <ListTree className="size-4 text-zinc-400" aria-hidden="true" /> Gestionar niveles
+              </button>
+            )}
+            {pathname.startsWith('/admin/ensambles') && (
+              <button type="button" onClick={() => requestAction('manage-pieces')} className="flex min-h-10 w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100">
+                <ListTree className="size-4 text-zinc-400" aria-hidden="true" /> Gestionar repertorio
+              </button>
+            )}
             <button type="button" className="flex min-h-10 w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100">
               <SlidersHorizontal className="size-4 text-zinc-400" aria-hidden="true" /> Filtrar registros
             </button>
@@ -120,7 +178,7 @@ export function ContextualMenu() {
       )}
 
       <p className="mt-5 border-t border-zinc-100 pt-4 text-xs leading-5 text-zinc-400">
-        {pathname.startsWith('/admin/estudiantes')
+        {pathname.startsWith('/admin/estudiantes') || pathname.startsWith('/admin/profesores') || pathname.startsWith('/admin/planes-estudio') || pathname.startsWith('/admin/ensambles') || pathname.startsWith('/admin/clases')
           ? 'Creación, edición y desactivación disponibles. Las demás acciones se habilitarán progresivamente.'
           : 'Los formularios y operaciones CRUD se conectarán en una siguiente iteración.'}
       </p>

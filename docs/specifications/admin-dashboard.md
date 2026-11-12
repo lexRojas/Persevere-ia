@@ -394,17 +394,17 @@ Cada listado y formulario contemplará: cargando, vacío, sin coincidencias, err
 | Necesidad | Estado actual | Acción requerida |
 |-----------|---------------|------------------|
 | Perfil compatible con rol | No garantizado por BD | Validar en transacciones y pruebas |
-| Estado de profesor | No existe | Agregar estado operativo |
+| Estado de profesor | Resuelto | `DocenteEstado`: `ACTIVO`, `INACTIVO`, `ARCHIVADO` |
 | Profesor–estudiante | Resuelto mediante `Clase` | No crear relación directa; calcular estudiantes distintos por docente |
-| Último acceso | No existe | Agregar `lastLoginAt` o registro de acceso |
+| Último acceso | Resuelto | `User.lastLoginAt`, actualizado tras autenticación exitosa |
 | Objetivos actuales | Resuelto mediante `EstudianteObjetivo` | Usar asociaciones `EN_PROCESO`; no agregar prioridad |
-| Plan–nivel | Sin relación explícita | Modelar niveles aplicables |
-| Estado del plan | Booleano `activo` | Evaluar enum borrador/activo/archivado |
-| Responsable de ensamble | No existe | Relacionar con `Docente` |
-| Próximo ensayo | No existe evento | Diseñar evento/ensayo |
-| Estado de ensamble | No existe | Agregar estado operativo |
+| Plan–nivel | Resuelto | Relación muchos-a-muchos entre `PlanEstudios` y `Nivel` |
+| Estado del plan | Resuelto | `PlanEstado`: `BORRADOR`, `ACTIVO`, `ARCHIVADO` |
+| Responsable de ensamble | Resuelto | Relación histórica muchos-a-muchos con `Docente` |
+| Próximo ensayo | Resuelto | Eventos `Ensayo`; el listado calcula el próximo programado |
+| Estado de ensamble | Resuelto | `ACTIVO`, `INACTIVO`, `ARCHIVADO` |
 
-No se modificará Prisma hasta aprobar estas decisiones y diseñar una migración no destructiva.
+Las ampliaciones restantes de Prisma se implementarán con migraciones versionadas y compatibles con los datos existentes.
 
 ---
 
@@ -455,9 +455,9 @@ AdminLayout
 1. Columnas exactas para tableta.
 2. Archivo final y variantes del logo.
 3. Imagen genérica definitiva del avatar.
-4. Agenda de clases y ensayos futuros.
-5. Creación/invitación de cuentas por el administrador.
-6. Campos exactos de formularios Crear/Editar.
+4. Agenda de ensayos futuros.
+5. Invitación de cuentas por correo.
+6. Campos exactos de formularios para Planes y Ensambles.
 7. Exportaciones y acciones múltiples.
 
 ---
@@ -495,7 +495,6 @@ AdminLayout
 
 ### Pendiente de siguientes iteraciones
 
-- Formularios y operaciones CRUD de Profesores, Planes de estudio y Ensambles.
 - Búsqueda global funcional.
 - Selección múltiple, filtros, exportación y archivado.
 - Campos que requieren ampliación del modelo de datos.
@@ -514,3 +513,46 @@ AdminLayout
 - El alta crea `User` y `Estudiante` de forma transaccional mediante la relación anidada de Prisma.
 - La interfaz ofrece alta, consulta, edición y confirmación de desactivación desde el menú contextual.
 - Las acciones de estudiantes aún no implementadas se muestran deshabilitadas.
+
+### Iteración 3 — CRUD de Profesores completado
+
+- El MVP administra una sola academia; `Docente.academiaId` se retira porque no representa una relación válida.
+- La especialidad se mantiene como texto libre y no requiere catálogo previo.
+- Estados permitidos: `ACTIVO`, `INACTIVO`, `ARCHIVADO`.
+- Solo profesores en estado `ACTIVO` pueden iniciar sesión.
+- El administrador define una contraseña temporal al crear la cuenta docente.
+- Editar permite modificar nombre, correo, especialidad, estado y restablecer opcionalmente la contraseña.
+- Desactivar cambia el estado a `INACTIVO`; no elimina `User`, `Docente`, clases, evaluaciones ni historial.
+- La cantidad de estudiantes cuenta estudiantes activos distintos presentes en clases del profesor.
+- La última autenticación exitosa se registra en `User.lastLoginAt`.
+- Las rutas `POST /api/admin/profesores` y `PATCH /api/admin/profesores/[id]` exigen sesión `ADMIN`.
+- La interfaz ofrece alta, consulta de perfil, edición y confirmación de desactivación desde el menú contextual.
+- La migración elimina el campo sin relación `academiaId`, agrega `Docente.estado` y `User.lastLoginAt`.
+
+### Iteración 4 — CRUD de Planes de estudio completado
+
+- El CRUD administra el plan y su colección de objetivos.
+- Estados permitidos: `BORRADOR`, `ACTIVO`, `ARCHIVADO`.
+- Un plan puede aplicar a varios niveles mediante una relación muchos-a-muchos.
+- La versión se captura manualmente; duplicación y versionado automático quedan para una iteración posterior.
+- Un borrador puede guardarse sin objetivos y completarse progresivamente.
+- Los objetivos contienen unidad, descripción, orden y criterios de logro.
+- Retirar un objetivo cambia su estado operativo; no elimina asociaciones ni progreso histórico de estudiantes.
+- Archivar un plan no lo elimina físicamente ni elimina sus objetivos.
+- El módulo incluye CRUD del catálogo de niveles; archivar un nivel conserva relaciones existentes y evita nuevas asignaciones.
+- Las rutas de planes y niveles exigen sesión `ADMIN`.
+- La edición permite agregar, reordenar, modificar y retirar lógicamente objetivos.
+- La migración convierte el booleano previo sin perder su significado: activo a `ACTIVO` e inactivo a `ARCHIVADO`.
+
+### Iteración 5 — CRUD de Ensambles completado
+
+- Estados permitidos: `ACTIVO`, `INACTIVO`, `ARCHIVADO`.
+- Un ensamble puede tener varios profesores responsables mediante asignaciones históricas.
+- Integrantes y piezas se retiran lógicamente, conservando fechas y relaciones previas.
+- Los integrantes admiten un rol o instrumento dentro del ensamble.
+- El repertorio permite definir un objetivo colectivo por pieza.
+- La agenda contiene múltiples ensayos con fecha, duración, estado y notas; el listado calcula el próximo ensayo programado.
+- Estados de ensayo: `PROGRAMADO`, `REALIZADO`, `CANCELADO`.
+- El módulo incorpora CRUD del catálogo de piezas musicales con archivado lógico.
+- Las rutas de ensambles y piezas musicales exigen sesión `ADMIN`.
+- Archivar un ensamble conserva responsables, integrantes, repertorio y ensayos.

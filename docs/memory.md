@@ -33,6 +33,13 @@ Este archivo es el diario de bordo del proyecto. Aquí se registran el estado ac
 | 2026-10-29 | Contraseña temporal administrada | El administrador define el acceso inicial; invitación por correo queda para una etapa posterior. |
 | 2026-10-29 | Objetivos posteriores al alta | El expediente puede crearse sin objetivos y estos se asignan después. |
 | 2026-10-29 | Estados de estudiante | Se conservan `ACTIVO`, `INACTIVO` y `BAJA`, sin eliminación física. |
+| 2026-11-12 | Alcance inicial de Profesores | Una academia, especialidad libre y estados `ACTIVO`, `INACTIVO`, `ARCHIVADO`. |
+| 2026-11-12 | Acceso de profesores | Solo docentes activos pueden autenticarse; inactivos y archivados conservan historial. |
+| 2026-11-12 | Alcance de Planes de estudio | CRUD de plan y objetivos, varios niveles, versión manual y estados `BORRADOR`, `ACTIVO`, `ARCHIVADO`. |
+| 2026-11-12 | Retiro de objetivos | Los objetivos se desactivan para conservar asociaciones y progreso histórico. |
+| 2026-11-12 | Catálogo de niveles | Se administrará desde Planes de estudio con alta, edición y archivado lógico. |
+| 2026-11-13 | Alcance de Ensambles | CRUD completo con varios profesores, integrantes, repertorio, múltiples ensayos y catálogo de piezas. |
+| 2026-11-13 | Historial de Ensambles | Profesores, integrantes y piezas se retiran lógicamente; archivar el ensamble conserva toda su historia. |
 
 ---
 
@@ -48,6 +55,7 @@ Este archivo es el diario de bordo del proyecto. Aquí se registran el estado ac
 - [ ] Implementar autenticación y rutas protegidas por rol.
 - [ ] Implementar módulos MVP (Fase 1): estudiantes, plan curricular, objetivos, repertorio, bitácora, evaluaciones, radar, calendario de práctica.
 - [x] Implementar primera iteración del panel administrativo (layout, navegación, listas y menú contextual).
+- [x] Implementar CRUD administrativo de estudiantes, profesores y planes de estudio.
 
 ## [2026-10-23] Entorno local ejecutable
 - Contexto: Se solicitó instalar dependencias, generar Prisma y ejecutar la aplicación.
@@ -95,6 +103,33 @@ Este archivo es el diario de bordo del proyecto. Aquí se registran el estado ac
 - Integridad: El alta crea `User` y `Estudiante` conjuntamente; la edición preserva el rol y el historial; no existe eliminación física desde la interfaz.
 - Validación: ESLint, TypeScript y build de producción aprobados. Se verificaron alta, hash de contraseña, edición y cambio a `INACTIVO` contra MySQL.
 - Limpieza: El estudiante usado en la prueba automatizada fue eliminado al terminar la validación.
+
+## [2026-11-12] CRUD administrativo de profesores
+- Decisión: El MVP opera con una academia, especialidad como texto libre y estados `ACTIVO`, `INACTIVO`, `ARCHIVADO`.
+- Migración: Se retiró `Docente.academiaId`, se agregó `Docente.estado` y `User.lastLoginAt`.
+- Implementación: Alta, consulta de perfil, edición, restablecimiento opcional de contraseña y desactivación lógica.
+- Acceso: Solo docentes activos pueden autenticarse; cada acceso exitoso actualiza `lastLoginAt`.
+- Datos derivados: La cantidad de estudiantes cuenta estudiantes activos distintos presentes en clases y la agenda usa la próxima clase futura.
+- Validación: ESLint, TypeScript, Prisma y build aprobados; API protegida con `403`, login activo con `200` e inactivo con `401`.
+- Limpieza: El profesor usado para la prueba integral fue eliminado al finalizar.
+
+## [2026-11-12] CRUD administrativo de planes de estudio
+- Decisión: El plan administra múltiples niveles, objetivos ordenados, versión manual y estados `BORRADOR`, `ACTIVO`, `ARCHIVADO`.
+- Migración: Se reemplazó `activo` por `PlanEstado`, se agregó relación muchos-a-muchos con niveles y retiro lógico de objetivos.
+- Implementación: Alta, consulta de estructura, edición, reordenamiento y retiro de objetivos, y archivado lógico del plan.
+- Catálogo: Se agregó gestión de niveles con alta, edición, orden y archivado lógico.
+- Integridad: Retirar objetivos o niveles conserva asociaciones históricas; nombre y versión identifican una versión única del plan.
+- Validación: ESLint, TypeScript, Prisma y build de producción aprobados; prueba integral confirmó niveles, edición, retiro lógico y archivado.
+- Limpieza: El plan, los objetivos y el nivel usados para las pruebas fueron eliminados al finalizar.
+
+## [2026-11-13] CRUD administrativo de ensambles
+- Decisión: Cada ensamble puede tener varios profesores responsables y estados `ACTIVO`, `INACTIVO`, `ARCHIVADO`.
+- Implementación: Alta, detalle, edición y archivado lógico; gestión de profesores, integrantes, repertorio y ensayos.
+- Historial: Las asignaciones de docentes, estudiantes y piezas se desactivan sin borrarse físicamente.
+- Agenda: Los ensayos registran fecha, duración, estado y notas; el listado deriva el próximo evento programado.
+- Catálogo: Se agregó CRUD de piezas musicales con archivado lógico.
+- Validación: ESLint, TypeScript, Prisma y build aprobados; la prueba integral confirmó varios profesores, retiro lógico, ensayos, archivado y autorización administrativa.
+- Limpieza: El ensamble y la pieza musical temporales fueron eliminados al finalizar.
 
 ---
 

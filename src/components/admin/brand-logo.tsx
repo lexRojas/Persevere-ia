@@ -1,11 +1,11 @@
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 export function BrandLogo({ compact = false, className }: { compact?: boolean; className?: string }) {
   return (
     <div className={cn('flex items-center gap-3', className)} aria-label="Persevere Academia de Música">
-      <span className="relative grid size-11 shrink-0 place-items-center rounded-full border-[5px] border-[#ef3b23] border-r-transparent" aria-hidden="true">
-        <span className="absolute -bottom-1 -right-0.5 size-3.5 rounded-full bg-[#ef3b23]" />
-        <span className="size-2 rounded-full bg-[#ef3b23]" />
+      <span className="grid size-11 shrink-0 place-items-center" aria-hidden="true">
+        <Image src="/images/facito.svg" alt="" width={31} height={44} className="h-11 w-auto" priority />
       </span>
       {!compact && (
         <span className="leading-none">

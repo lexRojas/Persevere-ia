@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BookOpenText, GraduationCap, LayoutDashboard, Music2, Settings, UsersRound } from 'lucide-react'
+import { BookOpenText, CalendarDays, GraduationCap, LayoutDashboard, Music2, Settings, UsersRound } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navigation = [
   { label: 'Inicio', href: '/admin', icon: LayoutDashboard },
   { label: 'Profesores', href: '/admin/profesores', icon: UsersRound },
   { label: 'Estudiantes', href: '/admin/estudiantes', icon: GraduationCap },
+  { label: 'Clases', href: '/admin/clases', icon: CalendarDays },
   { label: 'Planes de estudio', href: '/admin/planes-estudio', icon: BookOpenText },
   { label: 'Ensambles', href: '/admin/ensambles', icon: Music2 },
 ]

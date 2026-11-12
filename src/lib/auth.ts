@@ -1,6 +1,7 @@
 import type { AuthOptions, DefaultSession } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { compare } from 'bcryptjs'
+import { DocenteEstado, Role } from '@prisma/client'
 import { db } from '@/lib/db'
 
 // Extender el tipo de sesión para incluir el rol y el id del usuario
@@ -34,7 +35,7 @@ export const authOptions: AuthOptions = {
         }
 
         const user = await db.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials.email.trim().toLowerCase() },
           include: {
             estudiante: true,
             docente: true,
@@ -51,6 +52,15 @@ export const authOptions: AuthOptions = {
         if (!isValid) {
           return null
         }
+
+        if (user.role === Role.TEACHER && user.docente?.estado !== DocenteEstado.ACTIVO) {
+          return null
+        }
+
+        await db.user.update({
+          where: { id: user.id },
+          data: { lastLoginAt: new Date() },
+        })
 
         return {
           id: user.id,
