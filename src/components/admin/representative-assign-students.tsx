@@ -91,7 +91,7 @@ export function RepresentativeAssignStudents({ detail, availableStudents, onClos
             <div>
               <p className="text-xs text-zinc-500">Selecciona los estudiantes que pertenecen a este representante. Un estudiante solo puede tener un representante.</p>
             </div>
-            {availableForSelect.length > 0 && (
+            {availableForSelect.length > 0 ? (
               <select
                 className="h-10 rounded-lg border border-zinc-200 bg-white px-3 text-sm outline-none focus:border-[#ef3b23]"
                 onChange={(event) => {
@@ -107,6 +107,10 @@ export function RepresentativeAssignStudents({ detail, availableStudents, onClos
                   </option>
                 ))}
               </select>
+            ) : (
+              <p className="text-xs text-zinc-400 italic">
+                No hay estudiantes activos sin representante disponibles para asignar.
+              </p>
             )}
           </div>
 
