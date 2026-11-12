@@ -43,9 +43,10 @@ const classActionTypes: Record<string, 'edit' | 'deactivate' | 'view' | undefine
   Cancelar: 'deactivate',
 }
 
-const representativeActionTypes: Record<string, 'edit' | 'deactivate' | 'view' | undefined> = {
+const representativeActionTypes: Record<string, 'edit' | 'deactivate' | 'view' | 'assign-students' | undefined> = {
   'Ver perfil': 'view',
   Editar: 'edit',
+  'Asignar Estudiantes': 'assign-students',
   Desactivar: 'deactivate',
 }
 

@@ -25,7 +25,7 @@ export interface SelectedAdminEntity {
   label: string
 }
 
-export type AdminActionType = 'create' | 'edit' | 'deactivate' | 'view' | 'manage-levels' | 'manage-pieces'
+export type AdminActionType = 'create' | 'edit' | 'deactivate' | 'view' | 'manage-levels' | 'manage-pieces' | 'assign-students'
 
 export interface AdminActionRequest {
   type: AdminActionType

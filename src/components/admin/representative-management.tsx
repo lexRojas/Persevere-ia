@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { AlertTriangle, LoaderCircle, X } from 'lucide-react'
 import { AdminEntityList } from '@/components/admin/admin-entity-list'
 import { useAdminContext } from '@/components/admin/admin-context'
+import { RepresentativeAssignStudents } from '@/components/admin/representative-assign-students'
 import { RepresentativeDetail } from '@/components/admin/representative-detail'
 import type { AdminListColumn, AdminListRow, AdminRepresentativeDetailData, AdminRepresentativeStudent, AdminRepresentanteFormData } from '@/types/admin'
 
@@ -15,7 +16,7 @@ interface RepresentativeManagementProps {
   availableStudents: AdminRepresentativeStudent[]
 }
 
-type DialogMode = 'create' | 'edit' | 'deactivate' | 'view'
+type DialogMode = 'create' | 'edit' | 'deactivate' | 'view' | 'assign-students'
 
 const emptyRepresentative: Omit<AdminRepresentanteFormData, 'id'> = {
   nombre: '',
@@ -136,7 +137,9 @@ export function RepresentativeManagement({ columns, rows, representatives, avail
       ? 'Editar representante'
       : mode === 'view'
         ? 'Perfil del representante'
-        : 'Desactivar representante'
+        : mode === 'assign-students'
+          ? `Asignar estudiantes a ${selectedRepresentative?.nombre || ''}`
+          : 'Desactivar representante'
 
   return (
     <>
@@ -177,7 +180,9 @@ export function RepresentativeManagement({ columns, rows, representatives, avail
                 </footer>
               </div>
             ) : mode === 'view' ? (
-              <RepresentativeDetail
+              <RepresentativeDetail detail={formRep as AdminRepresentativeDetailData} onClose={closeDialog} />
+            ) : mode === 'assign-students' ? (
+              <RepresentativeAssignStudents
                 detail={formRep as AdminRepresentativeDetailData}
                 availableStudents={availableStudents}
                 onClose={closeDialog}
