@@ -167,3 +167,14 @@ export interface AdminRepresentanteFormData {
   estudiantes: string
   ultimoAcceso: string
 }
+
+export interface AdminRepresentativeStudent {
+  id: string
+  nombre: string
+  email: string
+  estado: string
+}
+
+export interface AdminRepresentativeDetailData extends AdminRepresentanteFormData {
+  estudiantesList: AdminRepresentativeStudent[]
+}

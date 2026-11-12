@@ -2,15 +2,17 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { AlertTriangle, Eye, LoaderCircle, X } from 'lucide-react'
+import { AlertTriangle, LoaderCircle, X } from 'lucide-react'
 import { AdminEntityList } from '@/components/admin/admin-entity-list'
 import { useAdminContext } from '@/components/admin/admin-context'
-import type { AdminListColumn, AdminListRow, AdminRepresentanteFormData } from '@/types/admin'
+import { RepresentativeDetail } from '@/components/admin/representative-detail'
+import type { AdminListColumn, AdminListRow, AdminRepresentativeDetailData, AdminRepresentativeStudent, AdminRepresentanteFormData } from '@/types/admin'
 
 interface RepresentativeManagementProps {
   columns: AdminListColumn[]
   rows: AdminListRow[]
-  representatives: AdminRepresentanteFormData[]
+  representatives: AdminRepresentativeDetailData[]
+  availableStudents: AdminRepresentativeStudent[]
 }
 
 type DialogMode = 'create' | 'edit' | 'deactivate' | 'view'
@@ -26,7 +28,7 @@ const emptyRepresentative: Omit<AdminRepresentanteFormData, 'id'> = {
   ultimoAcceso: 'Sin accesos',
 }
 
-export function RepresentativeManagement({ columns, rows, representatives }: RepresentativeManagementProps) {
+export function RepresentativeManagement({ columns, rows, representatives, availableStudents }: RepresentativeManagementProps) {
   const router = useRouter()
   const { actionRequest, clearAction, clearSelection, selectedEntity } = useAdminContext()
   const [error, setError] = useState<string | null>(null)
@@ -175,19 +177,11 @@ export function RepresentativeManagement({ columns, rows, representatives }: Rep
                 </footer>
               </div>
             ) : mode === 'view' ? (
-              <div className="p-5">
-                <span className="mx-auto grid size-14 place-items-center rounded-full bg-orange-50 text-[#ef3b23]"><Eye className="size-6" /></span>
-                <dl className="mt-5 grid gap-4 rounded-xl border border-zinc-200 p-4 sm:grid-cols-2">
-                  <RepDetail label="Nombre" value={formRep.nombre} />
-                  <RepDetail label="Correo" value={formRep.email} />
-                  <RepDetail label="Teléfono" value={formRep.telefono || 'Sin teléfono'} />
-                  <RepDetail label="Relación" value={formRep.relacion || 'Sin especificar'} />
-                  <RepDetail label="Dirección" value={formRep.direccion || 'Sin dirección'} />
-                  <RepDetail label="Estado" value={formRep.estado} />
-                  <RepDetail label="Estudiantes" value={formRep.estudiantes} />
-                  <RepDetail label="Último acceso" value={formRep.ultimoAcceso} />
-                </dl>
-              </div>
+              <RepresentativeDetail
+                detail={formRep as AdminRepresentativeDetailData}
+                availableStudents={availableStudents}
+                onClose={closeDialog}
+              />
             ) : (
               <RepresentativeForm
                 key={`${mode}-${selectedRepresentative?.id || 'new'}-${actionRequest?.nonce || 0}`}
@@ -235,15 +229,6 @@ function RepresentativeForm({ rep, mode, error, submitting, onSubmit, onCancel }
         </button>
       </footer>
     </form>
-  )
-}
-
-function RepDetail({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-xs font-bold uppercase tracking-wide text-zinc-400">{label}</dt>
-      <dd className="mt-1 break-words text-sm font-semibold text-zinc-800">{value}</dd>
-    </div>
   )
 }
 

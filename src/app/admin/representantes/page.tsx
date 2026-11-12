@@ -2,7 +2,7 @@ import { ModuleHeader } from '@/components/admin/module-header'
 import { RepresentativeManagement } from '@/components/admin/representative-management'
 import { db } from '@/lib/db'
 import { formatDateTime } from '@/lib/utils'
-import type { AdminListColumn, AdminListRow, AdminRepresentanteFormData } from '@/types/admin'
+import type { AdminListColumn, AdminListRow, AdminRepresentativeDetailData, AdminRepresentativeStudent } from '@/types/admin'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,13 +17,35 @@ const columns: AdminListColumn[] = [
 ]
 
 export default async function RepresentantesPage() {
-  const representantes = await db.representante.findMany({
-    include: {
-      usuario: true,
-      _count: { select: { estudiantes: true } },
-    },
-    orderBy: { nombre: 'asc' },
-  })
+  const [representantes, availableStudents] = await Promise.all([
+    db.representante.findMany({
+      include: {
+        usuario: true,
+        estudiantes: {
+          where: { estado: 'ACTIVO' },
+          select: {
+            id: true,
+            usuario: { select: { name: true, email: true } },
+            estado: true,
+          },
+        },
+        _count: { select: { estudiantes: true } },
+      },
+      orderBy: { nombre: 'asc' },
+    }),
+    db.estudiante.findMany({
+      where: {
+        estado: 'ACTIVO',
+        representanteId: null,
+      },
+      select: {
+        id: true,
+        usuario: { select: { name: true, email: true } },
+        estado: true,
+      },
+      orderBy: { usuario: { name: 'asc' } },
+    }),
+  ])
 
   const rows: AdminListRow[] = representantes.map((rep) => ({
     id: rep.id,
@@ -39,7 +61,7 @@ export default async function RepresentantesPage() {
     },
   }))
 
-  const repData: AdminRepresentanteFormData[] = representantes.map((rep) => ({
+  const repData: AdminRepresentativeDetailData[] = representantes.map((rep) => ({
     id: rep.id,
     nombre: rep.nombre,
     email: rep.usuario.email || '',
@@ -49,12 +71,30 @@ export default async function RepresentantesPage() {
     estado: rep.estado as 'ACTIVO' | 'INACTIVO',
     estudiantes: String(rep._count.estudiantes),
     ultimoAcceso: rep.usuario.lastLoginAt ? formatDateTime(rep.usuario.lastLoginAt) : 'Sin accesos',
+    estudiantesList: rep.estudiantes.map((e) => ({
+      id: e.id,
+      nombre: e.usuario.name || e.usuario.email || 'Sin nombre',
+      email: e.usuario.email || '',
+      estado: e.estado,
+    })),
+  }))
+
+  const available: AdminRepresentativeStudent[] = availableStudents.map((e) => ({
+    id: e.id,
+    nombre: e.usuario.name || e.usuario.email || 'Sin nombre',
+    email: e.usuario.email || '',
+    estado: e.estado,
   }))
 
   return (
     <div>
       <ModuleHeader title="Representantes" description="Gestiona perfiles de representantes y su vinculación con estudiantes." count={rows.length} />
-      <RepresentativeManagement columns={columns} rows={rows} representatives={repData} />
+      <RepresentativeManagement
+        columns={columns}
+        rows={rows}
+        representatives={repData}
+        availableStudents={available}
+      />
     </div>
   )
 }
