@@ -77,12 +77,7 @@ export default function LoginPage() {
         </div>
 
         <div>
-          <h2 className="mt-2 text-3xl font-extrabold text-center tracking-tight text-zinc-900">
-            Persevere
-          </h2>
-          <p className="mt-1 text-center text-sm text-zinc-500 font-medium">
-            Academia de Música
-          </p>
+        
           <p className="mt-3 text-center text-xs text-zinc-400 uppercase tracking-widest">
             Iniciar sesión
           </p>
