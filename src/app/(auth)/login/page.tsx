@@ -68,11 +68,11 @@ export default function LoginPage() {
         {/* Imagen del símbolo en la parte superior */}
         <div className="flex justify-center mb-8">
           <Image
-            src="/images/login-symbol.svg"
+            src="/images/persevere-logo.svg"
             alt="Persevere Academia de Música"
-            width={80}
-            height={80}
-            className="drop-shadow-[0_10px_15px_rgba(239,59,35,0.3)]"
+            width={200}
+            height={115}
+            className="drop-shadow-[0_10px_20px_rgba(239,59,35,0.25)]"
           />
         </div>
 
